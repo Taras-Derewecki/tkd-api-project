@@ -1,33 +1,11 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, APIRouter
 from pydantic import BaseModel
 # from typing import Optional, List
 from datetime import date
 from contextlib import asynccontextmanager
-
-"""
----------------------------------------------------------------------------------------
-API Definitions
----------------------------------------------------------------------------------------
-"""
-
-
-class Athlete(BaseModel):
-    athlete_id: int          # Identification of the athlete
-    athlete_name: str        # Name of athlete
-    athlete_age: int         # Age of athlete
-    athlete_belt_rank: str   # The belt rank of the athlete
-    athlete_start_date: date # Date when athlete joined
-
-class Session(BaseModel):
-    session_id: int       # Identification of the session
-    athlete_id: int       # Identification of the athelete
-    session_type: str     # Type of session: "sparring", "forms", "breaking", "technique", etc.
-    session_date: date    # Date of the session
-    instructor_notes: str # Instructor notes 
-
-athletes: dict[int, Athlete] = {}
-sessions: dict[int, Session] = {}
-
+from datastores import athletes, sessions
+from models.models import Athlete, Session, BeltColor, SessionType
+from routes import athlete_routes, session_routes
 
 # lifespan event handler to initialize data
 @asynccontextmanager
@@ -36,15 +14,16 @@ async def lifespan(app: FastAPI):
         athlete_id = 0,
         athlete_name = "Taras",
         athlete_age = 30,
-        athlete_belt_rank = "1st Degree Black Belt",
-        athlete_start_date = date(2008, 1, 1)
+        athlete_belt_rank = BeltColor.FIRST_DEGREE_BLACK,
+        athlete_start_date = date(2008, 1, 1),
+        num_of_athlete_teachings = 10
     )
     athletes[default_athlete.athlete_id] = default_athlete
 
     default_session = Session(
         session_id = 0,
         athlete_id = 0,
-        session_type = "sparring",
+        session_type = SessionType.SPARRING,
         session_date = date(2025, 5, 18),
         instructor_notes = "string"
     )
@@ -54,127 +33,24 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-
 """
----------------------------------------------------------------------------------------
-Athletes API Calls
----------------------------------------------------------------------------------------
-"""
+- The app.include_router() function adds the router object 
+  to the main application.
 
+- The router object encapsulates all the path operations 
+  defined within the respective route file.
+
+- This approach allows you to modularize your API logic and 
+  organize your routes into separate files, making your project 
+  more maintainable and scalable
+"""
+app.include_router(athlete_routes.router)
+app.include_router(session_routes.router)
 
 @app.get("/")
 def homepage():
     return {"Hello" : athletes[0].athlete_name}
 
-@app.get("/athletes/")
-def get_all_athletes():
-    return list(athletes.values())
-
-@app.post("/athletes/")
-def add_athlete_info(athlete: Athlete):
-    if athlete.athlete_id not in athletes:
-        athletes[athlete.athlete_id] = athlete   
-        return {"message": "Athlete added successfully!"}
-    
-    raise HTTPException(status_code=400, detail="Athlete already exists")
-    
-
-@app.get("/athletes/{athlete_id}")
-def get_athlete_info(athlete_id: int):
-    if athlete_id not in athletes:
-        raise HTTPException(status_code=404, detail="Athlete not found")
-    
-    athlete = athletes[athlete_id]
-    today = date.today()
-    monthly_duration = (today - athlete.athlete_start_date).days // 30
-    is_eligible = monthly_duration >= 6 # eligible after 6 months
-
-    return {
-        "athlete_name" : athlete.athlete_name,
-        "athlete_belt_rank" : athlete.athlete_belt_rank,
-        "athlete_age" : athlete.athlete_age,
-        "practicing_months" : monthly_duration,
-        "eligible_for_promotion" : is_eligible
-    }
-
-# PATCH
-@app.put("/athletes/{athlete_id}")
-def update_athlete_info(athlete_id: int, updated: Athlete):
-    if athlete_id not in athletes:
-        raise HTTPException(status_code=404, detail="Athlete not found")
-    athletes[athlete_id] = updated
-    return {"message" : "Athlete updated successfully!"}
-
-@app.delete("/athletes/{athlete_id}")
-def delete_athlete_info(athlete_id: int):
-    if athlete_id not in athletes:
-        raise HTTPException(status_code=404, detail="Athlete not found")
-    del athletes[athlete_id]
-    return {"message" : "Athlete deleted successfully!"}
-
-
-"""
----------------------------------------------------------------------------------------
-Sessions API Calls
----------------------------------------------------------------------------------------
-"""
-
-
-@app.get("/sessions/")
-def get_all_sessions():
-    return list(sessions.values())
-
-@app.post("/sessions/")
-def add_session_info(session: Session):
-    if session.session_id in sessions:
-        raise HTTPException(status_code=400, detail="Session already exists")
-    if session.athlete_id not in athletes:
-        raise HTTPException(status_code=404, detail="Athlete not found")
-    sessions[session.session_id] = session
-    return {"message": "Session added"}
-
-@app.get("/sessions/{athlete_id}")
-def get_session_info(athlete_id: int):
-    if athlete_id not in athletes:
-        raise HTTPException(status_code=404, detail="Athlete not found")
-
-    all_sessions = []
-    sparring = 0
-    forms = 0
-    breaking = 0
-    technique = 0
-
-    for session in sessions.values():
-        if session.athlete_id == athlete_id:
-            all_sessions.append(session)
-            if session.session_type == "sparring":
-                sparring += 1
-            elif session.session_type == "forms":
-                forms += 1
-            elif session.session_type == "breaking":
-                breaking += 1
-            elif session.session_type == "technique":
-                technique += 1
-
-    return {
-        "total_sessions": len(all_sessions),
-        "sparring_sessions": sparring,
-        "form_sessions": forms,
-        "breaking_sessions": breaking,
-        "technique_sessions": technique
-    }
-
-#PATCH
-@app.put("/sessions/{session_id}")
-def update_session_info(session_id: int, updated: Session):
-    if session_id not in sessions:
-        raise HTTPException(status_code=404, detail="Session not found")
-    sessions[session_id] = updated
-    return {"message": "Session updated"}
-
-@app.delete("/sessions/{session_id}")
-def delete_session_info(session_id: int):
-    if session_id not in sessions:
-        raise HTTPException(status_code=404, detail="Session not found")
-    del sessions[session_id]
-    return {"message": "Session deleted"}
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
