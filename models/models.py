@@ -15,6 +15,7 @@ class Session(BaseModel):
     athlete_id: int       # Identification of the athelete
     session_type: Enum    # Type of session: "sparring", "forms", "breaking", "technique", etc.
     session_date: date    # Date of the session
+    session_length: Enum  # Length of each session
     instructor_notes: str # Instructor notes 
 
 class BeltColor(Enum):
@@ -42,3 +43,9 @@ class SessionType(Enum):
     FORMS = 2
     BREAKING = 3
     TECHNIQUE = 4
+
+class SessionLength(Enum):
+    SPARRING = 45
+    FORMS = 60
+    BREAKING = 45
+    TECHNIQUE = 90
