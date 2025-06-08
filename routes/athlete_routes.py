@@ -1,12 +1,8 @@
 from main import app
 from datastores import athletes
 from models.models import Athlete
-from fastapi import FastAPI, HTTPException
+from fastapi import HTTPException
 from datetime import date
-
-@app.get("/")
-def homepage():
-    return {"Hello" : athletes[0].athlete_name}
 
 @app.get("/athletes/")
 def get_all_athletes():

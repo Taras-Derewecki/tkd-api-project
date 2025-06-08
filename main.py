@@ -1,10 +1,11 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, APIRouter
 from pydantic import BaseModel
 # from typing import Optional, List
 from datetime import date
 from contextlib import asynccontextmanager
 from datastores import athletes, sessions
-from models.models import Athlete, Session
+from models.models import Athlete, Session, BeltColor, SessionType
+from routes import athlete_routes, session_routes
 
 # lifespan event handler to initialize data
 @asynccontextmanager
@@ -13,15 +14,16 @@ async def lifespan(app: FastAPI):
         athlete_id = 0,
         athlete_name = "Taras",
         athlete_age = 30,
-        athlete_belt_rank = "1st Degree Black Belt",
-        athlete_start_date = date(2008, 1, 1)
+        athlete_belt_rank = BeltColor.FIRST_DEGREE_BLACK,
+        athlete_start_date = date(2008, 1, 1),
+        num_of_athlete_teachings = 10
     )
     athletes[default_athlete.athlete_id] = default_athlete
 
     default_session = Session(
         session_id = 0,
         athlete_id = 0,
-        session_type = "sparring",
+        session_type = SessionType.SPARRING,
         session_date = date(2025, 5, 18),
         instructor_notes = "string"
     )
@@ -30,6 +32,9 @@ async def lifespan(app: FastAPI):
     # no shutdown cleanup needed
 
 app = FastAPI(lifespan=lifespan)
+
+app.include_router(athlete_routes)
+app.include_router(session_routes)
 
 @app.get("/")
 def homepage():
