@@ -33,8 +33,19 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-app.include_router(athlete_routes)
-app.include_router(session_routes)
+"""
+- The app.include_router() function adds the router object 
+  to the main application.
+
+- The router object encapsulates all the path operations 
+  defined within the respective route file.
+
+- This approach allows you to modularize your API logic and 
+  organize your routes into separate files, making your project 
+  more maintainable and scalable
+"""
+app.include_router(athlete_routes.router)
+app.include_router(session_routes.router)
 
 @app.get("/")
 def homepage():

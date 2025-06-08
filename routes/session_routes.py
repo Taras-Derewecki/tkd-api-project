@@ -1,15 +1,16 @@
-from main import app
 from datastores import sessions, athletes
 from models.models import Session
 from fastapi import HTTPException
+from fastapi import APIRouter
 
+router = APIRouter()
 
-@app.get("/sessions/")
-def get_all_sessions():
+@router.get("/sessions/")
+async def get_all_sessions():
     return list(sessions.values())
 
-@app.post("/sessions/")
-def add_session_info(session: Session):
+@router.post("/sessions/")
+async def add_session_info(session: Session):
     if session.session_id in sessions:
         raise HTTPException(status_code=400, detail="Session already exists")
     if session.athlete_id not in athletes:
@@ -17,8 +18,8 @@ def add_session_info(session: Session):
     sessions[session.session_id] = session
     return {"message": "Session added"}
 
-@app.get("/sessions/{athlete_id}")
-def get_session_info(athlete_id: int):
+@router.get("/sessions/{athlete_id}")
+async def get_session_info(athlete_id: int):
     if athlete_id not in athletes:
         raise HTTPException(status_code=404, detail="Athlete not found")
 
@@ -48,16 +49,15 @@ def get_session_info(athlete_id: int):
         "technique_sessions": technique
     }
 
-#PATCH
-@app.put("/sessions/{session_id}")
-def update_session_info(session_id: int, updated: Session):
+@router.patch("/sessions/{session_id}")
+async def update_session_info(session_id: int, updated: Session):
     if session_id not in sessions:
         raise HTTPException(status_code=404, detail="Session not found")
     sessions[session_id] = updated
     return {"message": "Session updated"}
 
-@app.delete("/sessions/{session_id}")
-def delete_session_info(session_id: int):
+@router.delete("/sessions/{session_id}")
+async def delete_session_info(session_id: int):
     if session_id not in sessions:
         raise HTTPException(status_code=404, detail="Session not found")
     del sessions[session_id]

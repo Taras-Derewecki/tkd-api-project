@@ -1,15 +1,17 @@
-from main import app
 from datastores import athletes
 from models.models import Athlete
 from fastapi import HTTPException
 from datetime import date
+from fastapi import APIRouter
 
-@app.get("/athletes/")
-def get_all_athletes():
+router = APIRouter()
+
+@router.get("/athletes/")
+async def get_all_athletes():
     return list(athletes.values())
 
-@app.post("/athletes/")
-def add_athlete_info(athlete: Athlete):
+@router.post("/athletes/")
+async def add_athlete_info(athlete: Athlete):
     if athlete.athlete_id not in athletes:
         athletes[athlete.athlete_id] = athlete   
         return {"message": "Athlete added successfully!"}
@@ -17,8 +19,8 @@ def add_athlete_info(athlete: Athlete):
     raise HTTPException(status_code=400, detail="Athlete already exists")
     
 
-@app.get("/athletes/{athlete_id}")
-def get_athlete_info(athlete_id: int):
+@router.get("/athletes/{athlete_id}")
+async def get_athlete_info(athlete_id: int):
     if athlete_id not in athletes:
         raise HTTPException(status_code=404, detail="Athlete not found")
     
@@ -36,16 +38,15 @@ def get_athlete_info(athlete_id: int):
         "num_of_athlete_teachings" : athlete.num_of_athlete_teachings
     }
 
-# PATCH
-@app.put("/athletes/{athlete_id}")
-def update_athlete_info(athlete_id: int, updated: Athlete):
+@router.patch("/athletes/{athlete_id}")
+async def update_athlete_info(athlete_id: int, updated: Athlete):
     if athlete_id not in athletes:
         raise HTTPException(status_code=404, detail="Athlete not found")
     athletes[athlete_id] = updated
     return {"message" : "Athlete updated successfully!"}
 
-@app.delete("/athletes/{athlete_id}")
-def delete_athlete_info(athlete_id: int):
+@router.delete("/athletes/{athlete_id}")
+async def delete_athlete_info(athlete_id: int):
     if athlete_id not in athletes:
         raise HTTPException(status_code=404, detail="Athlete not found")
     del athletes[athlete_id]
