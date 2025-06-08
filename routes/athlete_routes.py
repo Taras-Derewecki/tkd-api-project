@@ -32,7 +32,8 @@ def get_athlete_info(athlete_id: int):
         "athlete_belt_rank" : athlete.athlete_belt_rank,
         "athlete_age" : athlete.athlete_age,
         "practicing_months" : monthly_duration,
-        "eligible_for_promotion" : is_eligible
+        "eligible_for_promotion" : is_eligible,
+        "num_of_athlete_teachings" : athlete.num_of_athlete_teachings
     }
 
 # PATCH
