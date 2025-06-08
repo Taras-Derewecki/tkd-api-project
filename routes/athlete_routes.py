@@ -38,7 +38,8 @@ async def get_athlete_info(athlete_id: int):
         "num_of_athlete_teachings" : athlete.num_of_athlete_teachings
     }
 
-@router.patch("/athletes/{athlete_id}")
+# implement code for the actual patch later... changing to put
+@router.put("/athletes/{athlete_id}")
 async def update_athlete_info(athlete_id: int, updated: Athlete):
     if athlete_id not in athletes:
         raise HTTPException(status_code=404, detail="Athlete not found")

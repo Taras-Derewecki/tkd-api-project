@@ -49,7 +49,8 @@ async def get_session_info(athlete_id: int):
         "technique_sessions": technique
     }
 
-@router.patch("/sessions/{session_id}")
+# implement code for the actual patch later... changing to put
+@router.put("/sessions/{session_id}")
 async def update_session_info(session_id: int, updated: Session):
     if session_id not in sessions:
         raise HTTPException(status_code=404, detail="Session not found")

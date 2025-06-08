@@ -2,22 +2,6 @@ from pydantic import BaseModel
 from datetime import date
 from enum import Enum
 
-class Athlete(BaseModel):
-    athlete_id: int               # Identification of the athlete
-    athlete_name: str             # Name of athlete
-    athlete_age: int              # Age of athlete
-    athlete_belt_rank: Enum       # The belt rank of the athlete
-    athlete_start_date: date      # Date when athlete joined
-    num_of_athlete_teachings: int # How many times did the athlete teach
-
-class Session(BaseModel):
-    session_id: int       # Identification of the session
-    athlete_id: int       # Identification of the athelete
-    session_type: Enum    # Type of session: "sparring", "forms", "breaking", "technique", etc.
-    session_date: date    # Date of the session
-    session_length: Enum  # Length of each session
-    instructor_notes: str # Instructor notes 
-
 class BeltColor(Enum):
     WHITE = 1
     YELLOW = 2
@@ -36,7 +20,7 @@ class BeltColor(Enum):
     SIXTH_DEGREE_BLACK = 15
     SEVENTH_DEGREE_BLACK = 16
     EIGHTH_DEGREE_BLACK = 17
-    NINETH_DEGREE_BLACK = 18
+    NINETH_DEGREE_BLACK = "Nineth Degree Black Belt"
 
 class SessionType(Enum):
     SPARRING = 1
@@ -49,3 +33,19 @@ class SessionLength(Enum):
     FORMS = 60
     BREAKING = 45
     TECHNIQUE = 90
+
+class Athlete(BaseModel):
+    athlete_id: int               # Identification of the athlete
+    athlete_name: str             # Name of athlete
+    athlete_age: int              # Age of athlete
+    athlete_belt_rank: BeltColor  # The belt rank of the athlete
+    athlete_start_date: date      # Date when athlete joined
+    num_of_athlete_teachings: int # How many times did the athlete teach
+
+class Session(BaseModel):
+    session_id: int       # Identification of the session
+    athlete_id: int       # Identification of the athelete
+    session_type: SessionType    # Type of session: "sparring", "forms", "breaking", "technique", etc.
+    session_date: date    # Date of the session
+    session_length: SessionLength  # Length of each session
+    instructor_notes: str # Instructor notes 
