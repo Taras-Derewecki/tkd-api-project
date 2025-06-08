@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from datetime import date
 from contextlib import asynccontextmanager
 from datastores import athletes, sessions
-from models.models import Athlete, Session, BeltColor, SessionType
+from models.models import Athlete, Session, BeltColor, SessionType, SessionLength
 from routes import athlete_routes, session_routes
 
 # lifespan event handler to initialize data
@@ -25,6 +25,7 @@ async def lifespan(app: FastAPI):
         athlete_id = 0,
         session_type = SessionType.SPARRING,
         session_date = date(2025, 5, 18),
+        session_length = SessionLength.SPARRING,
         instructor_notes = "string"
     )
     sessions[default_session.session_id] = default_session
