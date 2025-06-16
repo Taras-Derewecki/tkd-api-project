@@ -4,7 +4,8 @@ from pydantic import BaseModel
 from datetime import date
 from contextlib import asynccontextmanager
 from datastores import athletes, sessions
-from models.models import Athlete, Session, BeltColor, SessionType, SessionLength
+from models.athlete import Athlete, BeltColor
+from models.session import Session, SessionType, SessionLength
 from routes import athlete_routes, session_routes
 
 # lifespan event handler to initialize data

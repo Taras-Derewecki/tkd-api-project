@@ -1,5 +1,5 @@
 from datastores import sessions, athletes
-from models.models import Session
+from models.session import Session
 from fastapi import HTTPException
 from fastapi import APIRouter
 
