@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from datetime import date
 from enum import Enum
+from typing import Optional
 
 class SessionType(Enum):
     SPARRING = "Sparring"
@@ -21,3 +22,9 @@ class Session(BaseModel):
     session_date: date             # Date of the session
     session_length: SessionLength  # Length of each session
     instructor_notes: str          # Instructor notes 
+
+class SessionUpdate(BaseModel):
+    session_type: Optional[SessionType]
+    session_date: Optional[date]
+    session_length: Optional[SessionLength]
+    instructor_notes: Optional[str]

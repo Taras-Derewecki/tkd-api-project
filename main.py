@@ -17,7 +17,8 @@ async def lifespan(app: FastAPI):
         athlete_age = 30,
         athlete_belt_rank = BeltColor.FIRST_DEGREE_BLACK,
         athlete_start_date = date(2008, 1, 1),
-        num_of_athlete_teachings = 10
+        tournaments_at_current_rank = 2,
+        num_of_instructed_classes = 10
     )
     athletes[default_athlete.athlete_id] = default_athlete
 

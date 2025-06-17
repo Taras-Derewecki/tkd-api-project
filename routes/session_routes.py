@@ -1,5 +1,5 @@
 from datastores import sessions, athletes
-from models.session import Session
+from models.session import Session, SessionUpdate, SessionType
 from fastapi import HTTPException
 from fastapi import APIRouter
 
@@ -29,16 +29,17 @@ async def get_session_info(athlete_id: int):
     breaking = 0
     technique = 0
 
+    # SessionType.Sparring
     for session in sessions.values():
         if session.athlete_id == athlete_id:
             all_sessions.append(session)
-            if session.session_type == "sparring":
+            if session.session_type == SessionType.SPARRING:
                 sparring += 1
-            elif session.session_type == "forms":
+            elif session.session_type == SessionType.FORMS:
                 forms += 1
-            elif session.session_type == "breaking":
+            elif session.session_type == SessionType.BREAKING:
                 breaking += 1
-            elif session.session_type == "technique":
+            elif session.session_type == SessionType.TECHNIQUE:
                 technique += 1
 
     return {
@@ -49,12 +50,25 @@ async def get_session_info(athlete_id: int):
         "technique_sessions": technique
     }
 
-# implement code for the actual patch later... changing to put
-@router.put("/sessions/{session_id}")
-async def update_session_info(session_id: int, updated: Session):
+@router.patch("/sessions/{session_id}")
+async def update_session_info(session_id: int, updated: SessionUpdate):
     if session_id not in sessions:
         raise HTTPException(status_code=404, detail="Session not found")
-    sessions[session_id] = updated
+    
+    existing_session = sessions[session_id]
+
+    # Convert existing session to a dict
+    existing_data = existing_session.model_dump()
+
+    # Merge updated fields into existing data
+    updated_data = updated.model_dump(exclude_unset=True)
+
+    for key, value in updated_data.items():
+        existing_data[key] = value
+
+    # Re-validate and create a new Session object
+    sessions[session_id] = Session(**existing_data)
+
     return {"message": "Session updated"}
 
 @router.delete("/sessions/{session_id}")
