@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, APIRouter
+from fastapi import FastAPI, HTTPException, APIRouter, Depends
 from pydantic import BaseModel
 # from typing import Optional, List
 from datetime import date
@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 from datastores import athletes, sessions
 from models.athlete import Athlete, BeltColor
 from models.session import Session, SessionType, SessionLength
-from routes import athlete_routes, session_routes
+from routes import athlete_routes, session_routes, admin_routes
 
 # lifespan event handler to initialize data
 @asynccontextmanager
@@ -47,8 +47,9 @@ app = FastAPI(lifespan=lifespan)
   organize your routes into separate files, making your project 
   more maintainable and scalable
 """
-app.include_router(athlete_routes.router)
-app.include_router(session_routes.router)
+app.include_router(athlete_routes.athletes_router)
+app.include_router(session_routes.sessions_router)
+app.include_router(admin_routes.admin_router)
 
 @app.get("/")
 def homepage():

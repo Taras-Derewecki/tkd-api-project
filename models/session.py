@@ -22,6 +22,7 @@ class Session(BaseModel):
     session_date: date             # Date of the session
     session_length: SessionLength  # Length of each session
     instructor_notes: str          # Instructor notes 
+    # difficulty: ENUM
 
 class SessionUpdate(BaseModel):
     session_type: Optional[SessionType]
